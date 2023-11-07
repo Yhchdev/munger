@@ -1,26 +1,44 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="chart" ref="chart"></div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+<script setup>
+import * as echarts from "echarts";
+import { ref,onMounted } from "vue";
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+let chart = ref();
+
+onMounted(() => {
+  const myChart = echarts.init(chart.value);
+  console.log(myChart)
+
+  let option = {
+    xAxis: {
+      type: "category",
+      data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    },
+    yAxis: {
+      type: "value",
+    },
+    series: [
+      {
+        data: [120, 200, 150, 80, 70, 110, 130],
+        type: "bar",
+        showBackground: true,
+        backgroundStyle: {
+          color: "rgba(180, 180, 180, 0.2)",
+        },
+      },
+    ],
+  };
+
+  myChart.setOption(option);
+});
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.chart {
+  width: 100%;
+  height: 600px;
 }
 </style>
