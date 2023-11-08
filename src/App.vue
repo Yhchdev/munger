@@ -1,44 +1,70 @@
 <template>
-  <div class="chart" ref="chart"></div>
+  <div>
+    <button @click="fetchData">点击获取数据</button>
+    <div class="chart" id="chart"></div>
+  </div>
 </template>
 
-<script setup>
+<script>
 import * as echarts from "echarts";
-import { ref,onMounted } from "vue";
+import axios from "axios";
 
-let chart = ref();
-
-onMounted(() => {
-  const myChart = echarts.init(chart.value);
-  console.log(myChart)
-
-  let option = {
-    xAxis: {
-      type: "category",
-      data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+export default {
+  data() {
+    return {
+      chartData: null, // 用于存储获取到的数据
+    };
+  },
+  methods: {
+    fetchData() {
+      axios
+        .get("https://service-69d57xe6-1256238121.gz.apigw.tencentcs.com/release/data") // 替换为您的API端点
+        .then((response) => {
+          this.chartData = response.data; // 将获取到的数据存储到chartData中
+          this.renderChart(); // 数据获取成功后调用渲染图表的方法
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
     },
-    yAxis: {
-      type: "value",
-    },
-    series: [
-      {
-        data: [120, 200, 150, 80, 70, 110, 130],
-        type: "bar",
-        showBackground: true,
-        backgroundStyle: {
-          color: "rgba(180, 180, 180, 0.2)",
+    renderChart() {
+      // 使用Echarts渲染图表
+      const chart = echarts.init(document.getElementById("chart")); // 替换为您的图表容器ID
+
+      console.log(this.chartData.charts[0])
+      // 使用this.chartData填充图表数据
+      let option = {
+        xAxis: {
+          type: "category",
+          data: this.chartData.charts[0][0].x,
         },
-      },
-    ],
-  };
-
-  myChart.setOption(option);
-});
+        yAxis: {
+          type: "value",
+        },
+        series: [
+          {
+            data: this.chartData.charts[0][0].y,
+            type: "bar",
+            showBackground: true,
+            backgroundStyle: {
+              color: "rgba(180, 180, 180, 0.2)",
+            },
+          },
+          {
+            data: this.chartData.charts[0][1].y,
+            type: "line",
+          },
+        ],
+      };
+      chart.setOption(option);
+    },
+  },
+};
 </script>
 
 <style>
 .chart {
-  width: 100%;
+  width: 60%;
   height: 600px;
 }
 </style>
